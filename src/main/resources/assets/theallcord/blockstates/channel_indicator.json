@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "has_channel=false": {
+      "model": "theallcord:block/channel_indicator"
+    },
+    "has_channel=true": {
+      "model": "theallcord:block/channel_indicator_active"
+    }
+  }
+}

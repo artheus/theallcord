@@ -1,0 +1,10 @@
+{
+  "block.theallcord.channel_indicator": "AE Channel indicator",
+  "block.theallcord.cable_basic": "Basic cable",
+  "block.theallcord.cable_basic_dense": "Dense basic cable",
+  "block.theallcord.cable_advanced": "Advanced cable",
+  "waila.theallcord.Channels": "%1$d Channels",
+  "waila.theallcord.ChannelsOf": "%1$d of %2$d Channels",
+  "waila.theallcord.DeviceOffline": "Device Offline",
+  "waila.theallcord.DeviceOnline": "Device Online"
+}
