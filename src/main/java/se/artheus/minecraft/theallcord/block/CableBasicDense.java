@@ -4,8 +4,7 @@ import appeng.api.util.AEColor;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import se.artheus.minecraft.theallcord.block.entity.CableBasicDenseEntity;
 import se.artheus.minecraft.theallcord.block.entity.CableBasicEntity;
-import se.artheus.minecraft.theallcord.block.entity.CableBasicEntityDenseTicker;
-import se.artheus.minecraft.theallcord.block.entity.CableBasicEntityTicker;
+import se.artheus.minecraft.theallcord.block.entity.CableEntityTicker;
 
 public class CableBasicDense extends AbstractCableBlock<CableBasicDenseEntity> {
 
@@ -18,12 +17,12 @@ public class CableBasicDense extends AbstractCableBlock<CableBasicDenseEntity> {
 
     @Override
     public BlockEntityTicker<CableBasicDenseEntity> getServerTicker() {
-        return CableBasicEntityDenseTicker::serverTick;
+        return CableEntityTicker::serverTick;
     }
 
     @Override
     public BlockEntityTicker<CableBasicDenseEntity> getClientTicker() {
-        return CableBasicEntityDenseTicker::clientTick;
+        return CableEntityTicker::clientTick;
     }
 
     @Override

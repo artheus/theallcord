@@ -3,7 +3,7 @@ package se.artheus.minecraft.theallcord.block;
 import appeng.api.util.AEColor;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import se.artheus.minecraft.theallcord.block.entity.CableBasicEntity;
-import se.artheus.minecraft.theallcord.block.entity.CableBasicEntityTicker;
+import se.artheus.minecraft.theallcord.block.entity.CableEntityTicker;
 
 public class CableBasic extends AbstractCableBlock<CableBasicEntity> {
 
@@ -16,12 +16,12 @@ public class CableBasic extends AbstractCableBlock<CableBasicEntity> {
 
     @Override
     public BlockEntityTicker<CableBasicEntity> getServerTicker() {
-        return CableBasicEntityTicker::serverTick;
+        return CableEntityTicker::serverTick;
     }
 
     @Override
     public BlockEntityTicker<CableBasicEntity> getClientTicker() {
-        return CableBasicEntityTicker::clientTick;
+        return CableEntityTicker::clientTick;
     }
 
     @Override

@@ -4,7 +4,7 @@ import appeng.api.util.AEColor;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.block.entity.CableAdvancedEntity;
-import se.artheus.minecraft.theallcord.block.entity.CableAdvancedEntityTicker;
+import se.artheus.minecraft.theallcord.block.entity.CableEntityTicker;
 
 public class CableAdvanced extends AbstractCableBlock<CableAdvancedEntity> {
 
@@ -17,12 +17,12 @@ public class CableAdvanced extends AbstractCableBlock<CableAdvancedEntity> {
 
     @Override
     public BlockEntityTicker<CableAdvancedEntity> getServerTicker() {
-        return CableAdvancedEntityTicker::serverTick;
+        return CableEntityTicker::serverTick;
     }
 
     @Override
     public BlockEntityTicker<CableAdvancedEntity> getClientTicker() {
-        return CableAdvancedEntityTicker::clientTick;
+        return CableEntityTicker::clientTick;
     }
 
     @Override

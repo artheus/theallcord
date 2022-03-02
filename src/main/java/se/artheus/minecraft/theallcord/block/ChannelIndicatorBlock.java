@@ -82,6 +82,6 @@ public class ChannelIndicatorBlock<E extends ChannelIndicatorBlockEntity> extend
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return level.isClientSide ? (BlockEntityTicker<T>) this.blockEntityClientTicker : (BlockEntityTicker<T>) this.blockEntityServerTicker;
+        return level.isClientSide ? (BlockEntityTicker<T>) this.getClientTicker() : (BlockEntityTicker<T>) this.getServerTicker();
     }
 }
