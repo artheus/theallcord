@@ -40,12 +40,11 @@ public abstract class AbstractCableEntity extends AbstractEntity {
 
         for (AEColor color : this.getColors()) {
             var managedNode = new ManagedGridNode(this, gridListener)
-                    .setInWorldNode(true)
+                    .setInWorldNode(false)
                     .setGridColor(color)
                     .setIdlePowerUsage(0.0)
-                    .setFlags(GridFlags.PREFERRED)
                     .setTagName("%s_%s".formatted(this.getTagPrefix(), color.getEnglishName().toLowerCase()))
-                    .setExposedOnSides(EnumSet.allOf(Direction.class));
+                    .setExposedOnSides(EnumSet.noneOf(Direction.class));
 
             if (this.isDense()) {
                 managedNode.setFlags(GridFlags.DENSE_CAPACITY);
