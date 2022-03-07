@@ -1,0 +1,7 @@
+{
+  "parent": "theallcord:block/cable_ultimate",
+  "textures": {
+    "1": "theallcord:block/cable_ultimate_dense",
+    "particle": "theallcord:block/cable_ultimate_dense"
+  }
+}

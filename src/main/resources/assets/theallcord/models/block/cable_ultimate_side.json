@@ -1,0 +1,23 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [14, 14],
+	"textures": {
+		"0": "theallcord:block/cable_ultimate",
+		"particle": "theallcord:block/cable_ultimate"
+	},
+	"elements": [
+		{
+			"name": "north",
+			"from": [3, 3, 0],
+			"to": [13, 13, 2],
+			"faces": {
+				"north": {"uv": [1.14286, 1.14286, 12.57143, 12.57143], "texture": "#0"},
+				"east": {"uv": [13.71429, 0, 16, 11.42857], "texture": "#0"},
+				"south": {"uv": [1, 1, 12.42857, 12.42857], "texture": "#0"},
+				"west": {"uv": [13.71429, 0, 16, 11.42857], "texture": "#0"},
+				"up": {"uv": [0, 13.71429, 11.42857, 16], "texture": "#0"},
+				"down": {"uv": [0, 13.71429, 11.42857, 16], "texture": "#0"}
+			}
+		}
+	]
+}

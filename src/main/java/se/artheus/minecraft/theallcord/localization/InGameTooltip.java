@@ -3,12 +3,11 @@ package se.artheus.minecraft.theallcord.localization;
 import appeng.core.localization.LocalizationEnum;
 
 public enum InGameTooltip implements LocalizationEnum {
+    ColoredChannels("Colored channels:"),
+    ColoredChannelsOf("- %1$s: %2$d of %3$d channels"),
     ChannelsOf("%1$d of %2$d Channels"),
     DeviceOffline("Device Offline"),
-    DeviceOnline("Device Online"),
-    ErrorControllerConflict("Error: Controller Conflict"),
-    ErrorNestedP2PTunnel("Error: Nested P2P Tunnel"),
-    ErrorTooManyChannels("Error: Too Many Channels");
+    DeviceOnline("Device Online");
 
     private final String englishText;
 

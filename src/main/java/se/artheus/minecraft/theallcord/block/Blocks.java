@@ -6,50 +6,73 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.include.com.google.common.collect.Sets;
+import se.artheus.minecraft.theallcord.block.entity.EntityCableAdvanced;
+import se.artheus.minecraft.theallcord.block.entity.EntityCableBasic;
+import se.artheus.minecraft.theallcord.block.entity.ChannelIndicatorBlockEntity;
 
-import static se.artheus.minecraft.theallcord.Mod.MOD_NS;
+import java.util.Set;
+
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.*;
 
 public class Blocks {
 
-    public static BlockItem CHANNEL_INDICATOR_BLOCK_ITEM;
-    public static BlockItem CABLE_BASIC_BLOCK_ITEM;
-    public static BlockItem CABLE_BASIC_DENSE_BLOCK_ITEM;
-    public static BlockItem CABLE_ADVANCED_BLOCK_ITEM;
+    private static final FabricItemSettings TAB_SETTING = new FabricItemSettings().group(CreativeModeTab.TAB_MISC);
+
+    public static final AbstractBlock<ChannelIndicatorBlockEntity> BLOCK_CHANNEL_INDICATOR = new BlockChannelIndicator();
+    public static final AbstractBlock<EntityCableBasic> BLOCK_CABLE_BASIC = new BlockCableBasic<>(false);
+    public static final AbstractBlock<EntityCableBasic> BLOCK_CABLE_BASIC_DENSE = new BlockCableBasic<>(true);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ADVANCED = new BlockCableAdvanced<>(false);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ADVANCED_DENSE = new BlockCableAdvanced<>(true);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ELITE = new BlockCableElite<>(false);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ELITE_DENSE = new BlockCableElite<>(true);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE = new BlockCableUltimate<>(false);
+    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE_DENSE = new BlockCableUltimate<>(true);
+
+    public static final BlockItem BLOCK_ITEM_CHANNEL_INDICATOR = new BlockItem(BLOCK_CHANNEL_INDICATOR, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_BASIC = new BlockItemCable(BLOCK_CABLE_BASIC, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_BASIC_DENSE = new BlockItemCable(BLOCK_CABLE_BASIC_DENSE, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ADVANCED = new BlockItemCable(BLOCK_CABLE_ADVANCED, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ADVANCED_DENSE = new BlockItemCable(BLOCK_CABLE_ADVANCED_DENSE, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ELITE = new BlockItemCable(BLOCK_CABLE_ELITE, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ELITE_DENSE = new BlockItemCable(BLOCK_CABLE_ELITE_DENSE, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ULTIMATE = new BlockItemCable(BLOCK_CABLE_ULTIMATE, TAB_SETTING);
+    public static final BlockItem BLOCK_ITEM_CABLE_ULTIMATE_DENSE = new BlockItemCable(BLOCK_CABLE_ULTIMATE_DENSE, TAB_SETTING);
+
+    private static final Set<BlockMapper> blockMaps = Sets.newHashSet(
+            // blocks
+            new BlockMapper(ID_BLOCK_CHANNEL_INDICATOR, BLOCK_CHANNEL_INDICATOR, BLOCK_ITEM_CHANNEL_INDICATOR),
+
+            // cables
+            new BlockMapper(ID_BLOCK_CABLE_BASIC, BLOCK_CABLE_BASIC, BLOCK_ITEM_CABLE_BASIC),
+            new BlockMapper(ID_BLOCK_CABLE_BASIC_DENSE, BLOCK_CABLE_BASIC_DENSE, BLOCK_ITEM_CABLE_BASIC_DENSE),
+            new BlockMapper(ID_BLOCK_CABLE_ADVANCED, BLOCK_CABLE_ADVANCED, BLOCK_ITEM_CABLE_ADVANCED),
+            new BlockMapper(ID_BLOCK_CABLE_ADVANCED_DENSE, BLOCK_CABLE_ADVANCED_DENSE, BLOCK_ITEM_CABLE_ADVANCED_DENSE),
+            new BlockMapper(ID_BLOCK_CABLE_ELITE, BLOCK_CABLE_ELITE, BLOCK_ITEM_CABLE_ELITE),
+            new BlockMapper(ID_BLOCK_CABLE_ELITE_DENSE, BLOCK_CABLE_ELITE_DENSE, BLOCK_ITEM_CABLE_ELITE_DENSE),
+            new BlockMapper(ID_BLOCK_CABLE_ULTIMATE, BLOCK_CABLE_ULTIMATE, BLOCK_ITEM_CABLE_ULTIMATE),
+            new BlockMapper(ID_BLOCK_CABLE_ULTIMATE_DENSE, BLOCK_CABLE_ULTIMATE_DENSE, BLOCK_ITEM_CABLE_ULTIMATE_DENSE)
+    );
 
     public static void registerBlocks() {
-        // Channel indicator block
-        CHANNEL_INDICATOR_BLOCK_ITEM = registerBlockWithGenericBlockItem(ChannelIndicatorBlock.ID, ChannelIndicatorBlock.INSTANCE, CreativeModeTab.TAB_MISC);
+        for (var mapper : blockMaps) {
+            Blocks.registerBlock(mapper.id, mapper.block);
 
-        // Basic cable
-        Blocks.registerBlock(CableBasic.ID, CableBasic.INSTANCE);
-        CABLE_BASIC_BLOCK_ITEM = new CableBlockItem(CableBasic.INSTANCE, new FabricItemSettings().group(CreativeModeTab.TAB_MISC));
-        Blocks.registerBlockItem(CableBasic.ID, CABLE_BASIC_BLOCK_ITEM);
-
-        // Basic cable (dense)
-        Blocks.registerBlock(CableBasicDense.ID, CableBasicDense.INSTANCE);
-        CABLE_BASIC_DENSE_BLOCK_ITEM = new CableBlockItem(CableBasicDense.INSTANCE, new FabricItemSettings().group(CreativeModeTab.TAB_MISC));
-        Blocks.registerBlockItem(CableBasicDense.ID, CABLE_BASIC_DENSE_BLOCK_ITEM);
-
-        // Advanced cable
-        Blocks.registerBlock(CableAdvanced.ID, CableAdvanced.INSTANCE);
-        CABLE_ADVANCED_BLOCK_ITEM = new CableBlockItem(CableAdvanced.INSTANCE, new FabricItemSettings().group(CreativeModeTab.TAB_MISC));
-        Blocks.registerBlockItem(CableAdvanced.ID, CABLE_ADVANCED_BLOCK_ITEM);
+            if (mapper.blockItem != null) {
+                registerBlockItem(mapper.id, mapper.blockItem);
+            }
+        }
     }
 
-    static void registerBlock(String id, Block b) {
-        Registry.register(Registry.BLOCK, new ResourceLocation(MOD_NS, id), b);
+    static void registerBlock(ResourceLocation id, Block b) {
+        Registry.register(Registry.BLOCK, id, b);
     }
 
-    static void registerBlockItem(String id, BlockItem b) {
-        Registry.register(Registry.ITEM, new ResourceLocation(MOD_NS, id), b);
+    static void registerBlockItem(ResourceLocation id, BlockItem b) {
+        Registry.register(Registry.ITEM, id, b);
     }
 
-    static BlockItem registerBlockWithGenericBlockItem(String id, Block b, CreativeModeTab tab) {
-        registerBlock(id, b);
-
-        var blockItem = new BlockItem(b, new FabricItemSettings().group(tab));
-        registerBlockItem(id, blockItem);
-
-        return blockItem;
+    private record BlockMapper(ResourceLocation id, AbstractBlock<?> block, @Nullable BlockItem blockItem) {
     }
 }

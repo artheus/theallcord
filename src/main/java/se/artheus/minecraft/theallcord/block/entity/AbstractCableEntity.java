@@ -7,38 +7,41 @@ import appeng.api.networking.IManagedGridNode;
 import appeng.api.util.AEColor;
 import appeng.me.ManagedGridNode;
 import com.google.common.base.Preconditions;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import se.artheus.minecraft.theallcord.Mod;
-import se.artheus.minecraft.theallcord.block.AbstractCableBlock;
-import se.artheus.minecraft.theallcord.block.CableConnections;
+import org.jetbrains.annotations.Nullable;
+import se.artheus.minecraft.theallcord.block.AbstractBlockCable;
+import se.artheus.minecraft.theallcord.cable.CableConnections;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractCableEntity extends AbstractEntity {
+public abstract class AbstractCableEntity extends AbstractEntity implements RenderAttachmentBlockEntity {
 
     private final Map<AEColor, IManagedGridNode> managedNodes = new HashMap<>();
 
-    private final boolean dense;
-
+    private boolean shouldUpdate = true;
     private boolean initialized = false;
+
+    private final boolean dense;
 
     public AbstractCableEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
 
-        Preconditions.checkArgument(blockState.getBlock() instanceof AbstractCableBlock<?>);
+        Preconditions.checkArgument(blockState.getBlock() instanceof AbstractBlockCable<?>);
 
-        this.dense = ((AbstractCableBlock<?>) blockState.getBlock()).isDense();
+        this.dense = ((AbstractBlockCable<?>) blockState.getBlock()).isDense();
 
         var gridListener = new GridListener<>(this);
+        var colors = ((AbstractBlockCable<?>) blockState.getBlock()).colors();
 
-        for (AEColor color : this.getColors()) {
+        for (AEColor color : colors) {
             var managedNode = new ManagedGridNode(this, gridListener)
                     .setInWorldNode(false)
                     .setGridColor(color)
@@ -54,11 +57,41 @@ public abstract class AbstractCableEntity extends AbstractEntity {
         }
     }
 
-    @Override
-    public void setChanged() {
-        super.setChanged();
+    public abstract String getTagPrefix();
 
-        this.updateCableConnections();
+    public boolean shouldUpdate() {
+        return this.shouldUpdate;
+    }
+
+    public void flagForUpdate() {
+        this.shouldUpdate = true;
+    }
+
+    @Override
+    public void clearRemoved() {
+        super.clearRemoved();
+        TickHandler.instance().addInit(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+
+        this.managedNodes.forEach((color, node) -> node.destroy());
+    }
+
+    @Override
+    public boolean isOnline() {
+        var isOnline = true;
+
+        for(var node : managedNodes.values()) {
+            if (node.getNode() == null || !node.getNode().isPowered()) {
+                isOnline = false;
+                break;
+            }
+        }
+
+        return isOnline;
     }
 
     public void initialize() {
@@ -72,23 +105,13 @@ public abstract class AbstractCableEntity extends AbstractEntity {
         });
 
         initialized = true;
-
-        this.updateCableConnections();
     }
 
-    void updateCableConnections() {
+    public void updateCableConnections() {
         if (level == null) return;
 
-        var newState = CableConnections.connectToNearbyGrid(
-                level,
-                worldPosition
-        );
-
-        Mod.LOGGER.info("new state is {}", newState);
-
-        level.setBlockAndUpdate(worldPosition, newState);
+        level.setBlockAndUpdate(worldPosition, CableConnections.connectToNearbyGrid(level, worldPosition));
     }
-
 
     public boolean isInitialized() {
         return initialized;
@@ -101,10 +124,6 @@ public abstract class AbstractCableEntity extends AbstractEntity {
     public IManagedGridNode getManagedNodeByColor(AEColor color) {
         return this.managedNodes.get(color);
     }
-
-    public abstract AEColor[] getColors();
-
-    public abstract String getTagPrefix();
 
     public boolean isDense() {
         return dense;
@@ -125,10 +144,8 @@ public abstract class AbstractCableEntity extends AbstractEntity {
     }
 
     @Override
-    public void setRemoved() {
-        super.setRemoved();
-
-        this.managedNodes.forEach((color, node) -> node.destroy());
+    public @Nullable Object getRenderAttachmentData() {
+        return null;
     }
 
     protected record GridListener<T extends AbstractCableEntity>(T owner) implements IGridNodeListener<T> {
@@ -138,6 +155,11 @@ public abstract class AbstractCableEntity extends AbstractEntity {
 
         @Override
         public void onSaveChanges(T nodeOwner, IGridNode node) {
+        }
+
+        @Override
+        public void onGridChanged(T nodeOwner, IGridNode node) {
+            nodeOwner.setChanged();
         }
     }
 }

@@ -5,56 +5,39 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import se.artheus.minecraft.theallcord.block.CableAdvanced;
-import se.artheus.minecraft.theallcord.block.CableBasic;
-import se.artheus.minecraft.theallcord.block.CableBasicDense;
-import se.artheus.minecraft.theallcord.block.ChannelIndicatorBlock;
+import se.artheus.minecraft.theallcord.block.AbstractBlock;
 
-import static se.artheus.minecraft.theallcord.Mod.MOD_NS;
+import static se.artheus.minecraft.theallcord.block.Blocks.*;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.*;
 
 public class BlockEntities {
-
-    public static BlockEntityType<CableBasicEntity> CABLE_BASIC_ENTITY;
-    public static BlockEntityType<CableBasicDenseEntity> CABLE_BASIC_DENSE_ENTITY;
-    public static BlockEntityType<CableAdvancedEntity> CABLE_ADVANCED_ENTITY;
-
-    public static BlockEntityType<ChannelIndicatorBlockEntity> CHANNEL_INDICATOR_ENTITY;
+    public static BlockEntityType<ChannelIndicatorBlockEntity> ENTITY_TYPE_CHANNEL_INDICATOR;
+    public static BlockEntityType<EntityCableBasic> ENTITY_TYPE_CABLE_BASIC;
+    public static BlockEntityType<EntityCableAdvanced> ENTITY_TYPE_CABLE_ADVANCED;
+    public static BlockEntityType<EntityCableElite> ENTITY_TYPE_CABLE_ELITE;
+    public static BlockEntityType<EntityCableUltimate> ENTITY_TYPE_CABLE_ULTIMATE;
 
     public static void registerBlockEntities() {
-        // Channel indicator entity
-        CHANNEL_INDICATOR_ENTITY = Registry.register(
+        ENTITY_TYPE_CHANNEL_INDICATOR = register(ID_ENTITY_CHANNEL_INDICATOR, ChannelIndicatorBlockEntity::new, BLOCK_CHANNEL_INDICATOR);
+
+        ENTITY_TYPE_CABLE_BASIC = register(ID_ENTITY_CABLE_BASIC, EntityCableBasic::new, BLOCK_CABLE_BASIC, BLOCK_CABLE_BASIC_DENSE);
+        ENTITY_TYPE_CABLE_ADVANCED = register(ID_ENTITY_CABLE_ADVANCED, EntityCableAdvanced::new, BLOCK_CABLE_ADVANCED, BLOCK_CABLE_ADVANCED_DENSE);
+        ENTITY_TYPE_CABLE_ELITE = register(ID_ENTITY_CABLE_ELITE, EntityCableElite::new, BLOCK_CABLE_ELITE, BLOCK_CABLE_ELITE_DENSE);
+        ENTITY_TYPE_CABLE_ULTIMATE = register(ID_ENTITY_CABLE_ULTIMATE, EntityCableUltimate::new, BLOCK_CABLE_ULTIMATE, BLOCK_CABLE_ULTIMATE_DENSE);
+    }
+
+    private static <T extends AbstractEntity> BlockEntityType<T> register(ResourceLocation id, FabricBlockEntityTypeBuilder.Factory<T> factory, Block... blocks) {
+        var type = Registry.register(
                 Registry.BLOCK_ENTITY_TYPE,
-                new ResourceLocation(MOD_NS, ChannelIndicatorBlockEntity.ID),
-                FabricBlockEntityTypeBuilder.create(ChannelIndicatorBlockEntity::new, ChannelIndicatorBlock.INSTANCE).build(null)
+                id,
+                FabricBlockEntityTypeBuilder.create(factory, blocks).build()
         );
 
-        ChannelIndicatorBlock.INSTANCE.setBlockEntityType(CHANNEL_INDICATOR_ENTITY);
+        for (var block : blocks) {
+            //noinspection unchecked
+            ((AbstractBlock<T>) block).setBlockEntityType(type);
+        }
 
-        // Basic cable entity
-        CABLE_BASIC_ENTITY = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE,
-                new ResourceLocation(MOD_NS, CableBasicEntity.ID),
-                FabricBlockEntityTypeBuilder.create(CableBasicEntity::new, CableBasic.INSTANCE).build(null)
-        );
-
-        CableBasic.INSTANCE.setBlockEntityType(CABLE_BASIC_ENTITY);
-
-        // Basic cable (dense) entity
-        CABLE_BASIC_DENSE_ENTITY = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE,
-                new ResourceLocation(MOD_NS, CableBasicDenseEntity.ID),
-                FabricBlockEntityTypeBuilder.create(CableBasicDenseEntity::new, CableBasicDense.INSTANCE).build(null)
-        );
-
-        CableBasicDense.INSTANCE.setBlockEntityType(CABLE_BASIC_DENSE_ENTITY);
-
-        // Advanced cable entity
-        CABLE_ADVANCED_ENTITY = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE,
-                new ResourceLocation(MOD_NS, CableAdvancedEntity.ID),
-                FabricBlockEntityTypeBuilder.create(CableAdvancedEntity::new, CableAdvanced.INSTANCE).build(null)
-        );
-
-        CableAdvanced.INSTANCE.setBlockEntityType(CABLE_ADVANCED_ENTITY);
+        return type;
     }
 }

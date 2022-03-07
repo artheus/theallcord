@@ -1,12 +1,13 @@
 package se.artheus.minecraft.theallcord;
 
+import appeng.api.util.AEColor;
 import appeng.block.networking.CableBusBlock;
 import joptsimple.internal.Strings;
 import mcp.mobius.waila.api.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,7 +18,8 @@ import se.artheus.minecraft.theallcord.localization.InGameTooltip;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.LongAdder;
+
+import static se.artheus.minecraft.theallcord.localization.InGameTooltip.*;
 
 public class WailaModule implements IWailaPlugin {
 
@@ -25,65 +27,76 @@ public class WailaModule implements IWailaPlugin {
         registrar.addDisplayItem(new IconProvider(), CableBusBlock.class);
 
         var blockEntityProvider = new BlockEntityDataProvider();
-        registrar.addBlockData(blockEntityProvider, AbstractCableEntity.class);
-        registrar.addComponent(blockEntityProvider, TooltipPosition.BODY, AbstractCableEntity.class);
+        registrar.addBlockData(blockEntityProvider, AbstractEntity.class);
+        registrar.addComponent(blockEntityProvider, TooltipPosition.BODY, AbstractEntity.class);
     }
 
     private static class BlockEntityDataProvider implements IBlockComponentProvider, IServerDataProvider<BlockEntity> {
 
-        private static final String TAG_MAX_CHANNELS = "maxChannels";
-        private static final String TAG_USED_CHANNELS = "usedChannels";
-        private static final String TAG_CABLE_COLORS = "cableColors";
+        private static final String TAG_CABLE_COLORED_CHANNELS = "theallcord:cableColoredChannels";
+        private static final String TAG_DEVICE_ONLINE = "theallcord:deviceOnline";
 
-        private static final String SERVER_CABLE_COMPOUND_KEY = "AllCordCable";
+        private static final String SERVER_AE_NODE_DATA_COMPOUND_KEY = "theallcord:ae2_node_data";
 
         @Override
         public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-            var serverData = accessor.getServerData().getCompound(SERVER_CABLE_COMPOUND_KEY);
+            var serverData = accessor.getServerData().getCompound(SERVER_AE_NODE_DATA_COMPOUND_KEY);
 
-            if (serverData.contains(TAG_MAX_CHANNELS, Tag.TAG_INT)) {
-                var usedChannels = serverData.getInt(TAG_USED_CHANNELS);
-                var maxChannels = serverData.getInt(TAG_MAX_CHANNELS);
-
-                tooltip.add(InGameTooltip.ChannelsOf.text(usedChannels, maxChannels));
-            }
-
-            if (serverData.contains(TAG_CABLE_COLORS, Tag.TAG_STRING)) {
-                var tagName = serverData.getString(TAG_CABLE_COLORS);
+            if (serverData.contains(TAG_CABLE_COLORED_CHANNELS, Tag.TAG_STRING)) {
+                var tagName = serverData.getString(TAG_CABLE_COLORED_CHANNELS);
                 var names = tagName.split(",");
 
                 if (names.length > 0) {
-                    tooltip.add(new TextComponent("colors:"));
+                    tooltip.add(ColoredChannels.text());
+
                     for (var n : names) {
-                        tooltip.add(new TextComponent(" - %s".formatted(n)).withStyle(Style.EMPTY.withItalic(true)));
+                        var chanData = n.split(":");
+                        if (chanData.length != 3) continue;
+
+                        tooltip.add(ColoredChannelsOf.text(
+                                new TranslatableComponent(AEColor.valueOf(chanData[0]).translationKey),
+                                chanData[1],
+                                chanData[2]
+                        ).withStyle(ChatFormatting.ITALIC));
                     }
+                }
+            }
+            if (serverData.contains(TAG_DEVICE_ONLINE, Tag.TAG_BYTE)) {
+                if (serverData.getBoolean(TAG_DEVICE_ONLINE)) {
+                    tooltip.add(DeviceOnline.text().withStyle(ChatFormatting.GREEN));
+                } else {
+                    tooltip.add(DeviceOffline.text().withStyle(ChatFormatting.RED));
                 }
             }
         }
 
         @Override
         public void appendServerData(CompoundTag serverData, ServerPlayer player, Level world, BlockEntity be) {
-            var cableData = new CompoundTag();
-            var maxChannels = new LongAdder();
-            var usedChannels = new LongAdder();
-            final List<String> tagNames = new ArrayList<>();
+            var data = new CompoundTag();
 
             if (be instanceof AbstractCableEntity ace) {
+
+                final List<String> tagNames = new ArrayList<>();
+
                 ace.getManagedNodes().forEach((color, mainNode) -> {
                     if (mainNode.getNode() == null) return;
 
-                    maxChannels.add(mainNode.getNode().getMaxChannels());
-                    usedChannels.add(mainNode.getNode().getUsedChannels());
+                    var maxChannels = mainNode.getNode().getMaxChannels();
+                    var usedChannels = mainNode.getNode().getUsedChannels();
 
-                    tagNames.add(color.getEnglishName().toLowerCase());
+                    tagNames.add("%s:%d:%d".formatted(color.name(), usedChannels, maxChannels));
                 });
 
-                cableData.putInt(TAG_USED_CHANNELS, usedChannels.intValue());
-                cableData.putInt(TAG_MAX_CHANNELS, maxChannels.intValue());
-                cableData.putString(TAG_CABLE_COLORS, Strings.join(tagNames, ","));
+                data.putString(TAG_CABLE_COLORED_CHANNELS, Strings.join(tagNames, ","));
             }
 
-            serverData.put(SERVER_CABLE_COMPOUND_KEY, cableData);
+            if (be instanceof AbstractEntity entity) {
+                data.putBoolean(TAG_DEVICE_ONLINE, entity.isOnline());
+            }
+
+            if (!data.isEmpty()) {
+                serverData.put(SERVER_AE_NODE_DATA_COMPOUND_KEY, data);
+            }
         }
     }
 

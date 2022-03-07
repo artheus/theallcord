@@ -1,0 +1,30 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [14, 14],
+	"textures": {
+		"1": "theallcord:block/cable_ultimate",
+		"particle": "theallcord:block/cable_ultimate"
+	},
+	"elements": [
+		{
+			"name": "base",
+			"from": [2, 2, 2],
+			"to": [14, 14, 14],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 13.71429, 13.71429], "texture": "#1"},
+				"east": {"uv": [0, 0, 13.71429, 13.71429], "texture": "#1"},
+				"south": {"uv": [0, 0, 13.71429, 13.71429], "texture": "#1"},
+				"west": {"uv": [0, 0, 13.71429, 13.71429], "texture": "#1"},
+				"up": {"uv": [13.71429, 13.71429, 0, 0], "texture": "#1"},
+				"down": {"uv": [13.71429, 0, 0, 13.71429], "texture": "#1"}
+			}
+		}
+	],
+	"display": {
+		"gui": {
+			"rotation": [20, -20, 0],
+			"scale": [0.92383, 0.92383, 0.92383]
+		}
+	}
+}
