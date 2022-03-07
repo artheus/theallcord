@@ -22,6 +22,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
 import se.artheus.minecraft.theallcord.cable.CableConnections;
+import team.reborn.energy.api.EnergyStorage;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -97,11 +98,16 @@ public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends 
 
     @Override
     public BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos neighborPos) {
+        AbstractCableEntity aceEntity = null;
+
         if (level.getBlockEntity(currentPos) instanceof AbstractCableEntity ace) {
             ace.flagForUpdate();
+            aceEntity = ace;
         }
 
-        return state.setValue(DIRECTION_PROPERTY_MAP.get(direction), CableConnections.isConnectable(level.getBlockEntity(neighborPos)));
+        if (aceEntity == null) return state;
+
+        return state.setValue(DIRECTION_PROPERTY_MAP.get(direction), CableConnections.isConnectable(aceEntity.getLevel(), neighborPos, direction.getOpposite(), level.getBlockEntity(neighborPos)));
     }
 
     private VoxelShape[] makeShapes(float apothem) {

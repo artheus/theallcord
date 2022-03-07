@@ -10,12 +10,14 @@ import appeng.blockentity.networking.ControllerBlockEntity;
 import appeng.me.GridConnection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import se.artheus.minecraft.theallcord.Mod;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
+import team.reborn.energy.api.EnergyStorage;
 
 import java.util.Objects;
 
@@ -23,9 +25,13 @@ import static se.artheus.minecraft.theallcord.block.AbstractBlockCable.DIRECTION
 
 public class CableConnections {
 
-    public static boolean isConnectable(BlockEntity blockEntity) {
-        return blockEntity instanceof AbstractCableEntity ||
-                blockEntity instanceof IInWorldGridNodeHost;
+    public static boolean isConnectable(Level level, BlockPos pos, Direction dir, BlockEntity neighbor) {
+        if (neighbor instanceof AbstractCableEntity ||
+                neighbor instanceof IInWorldGridNodeHost) return true;
+
+        if (level == null || pos == null || dir == null) return false;
+
+        return (EnergyStorage.SIDED.find(level, pos, dir) != null);
     }
 
     public static BlockState connectToNearbyGrid(LevelAccessor level, BlockPos pos) {
@@ -57,29 +63,30 @@ public class CableConnections {
             for (final Direction dir : directions) {
                 var relativeEntity = level.getBlockEntity(pos.relative(dir));
 
-                state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), connectGridNodes(level, dir, ace, relativeEntity));
+                state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), connectGridNodes(dir, ace, relativeEntity));
             }
         }
 
         return state;
     }
 
-    private static boolean connectGridNodes(LevelAccessor level, Direction dir, AbstractCableEntity ace, BlockEntity otherEntity) {
-        if (!isConnectable(otherEntity)) return false;
+    private static boolean connectGridNodes(Direction dir, AbstractCableEntity myEntity, BlockEntity neighborEntity) {
+        if (dir == null || myEntity == null || neighborEntity == null) return false;
+        if (!isConnectable(myEntity.getLevel(), neighborEntity.getBlockPos(), dir.getOpposite(), neighborEntity)) return false;
 
-        for (var managedNode : ace.getManagedNodes().values()) {
+        for (var managedNode : myEntity.getManagedNodes().values()) {
             var gridNode = managedNode.getNode();
 
             if (gridNode == null) {
-                ace.flagForUpdate();
+                myEntity.flagForUpdate();
                 continue;
             }
 
             var color = gridNode.getGridColor();
-            var otherGridNode = getGridNodeFrom(otherEntity, color, dir.getOpposite());
+            var otherGridNode = getGridNodeFrom(neighborEntity, color, dir.getOpposite());
 
             if (otherGridNode == null) {
-                ace.flagForUpdate();
+                myEntity.flagForUpdate();
                 continue;
             }
 
@@ -91,7 +98,7 @@ public class CableConnections {
                 if (e instanceof ExistingConnectionException) {
                     Mod.LOGGER.debug("connection between {} and {} already exists", gridNode, otherGridNode);
                 } else {
-                    Mod.LOGGER.error("failed to create connection for {} in direction {}", ace, dir);
+                    Mod.LOGGER.error("failed to create connection for {} in direction {}", myEntity, dir);
                     e.printStackTrace();
                     return false;
                 }

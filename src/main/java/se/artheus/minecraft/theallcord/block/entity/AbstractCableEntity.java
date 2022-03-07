@@ -8,6 +8,8 @@ import appeng.api.util.AEColor;
 import appeng.me.ManagedGridNode;
 import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import se.artheus.minecraft.theallcord.block.AbstractBlockCable;
 import se.artheus.minecraft.theallcord.cable.CableConnections;
+import team.reborn.energy.api.EnergyStorage;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -28,6 +31,8 @@ public abstract class AbstractCableEntity extends AbstractEntity implements Rend
 
     private boolean shouldUpdate = true;
     private boolean initialized = false;
+
+    private EnergyStorage energyStorage;
 
     private final boolean dense;
 
@@ -65,6 +70,14 @@ public abstract class AbstractCableEntity extends AbstractEntity implements Rend
 
     public void flagForUpdate() {
         this.shouldUpdate = true;
+    }
+
+    protected void setEnergyStorage(EnergyStorage energyStorage) {
+        this.energyStorage = energyStorage;
+    }
+
+    public EnergyStorage getEnergyStorage(Direction dir) {
+        return energyStorage;
     }
 
     @Override

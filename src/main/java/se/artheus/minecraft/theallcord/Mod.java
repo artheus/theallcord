@@ -19,6 +19,9 @@ public class Mod implements ModInitializer {
         BlockEntities.registerBlockEntities();
         Items.registerItems();
 
+        // API Lookup
+        InitApiLookup.init();
+
         // Initialize mod tick handler
         TickHandler.instance().init();
     }
