@@ -1,5 +1,6 @@
 package se.artheus.minecraft.theallcord;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
 import team.reborn.energy.api.EnergyStorage;
 
@@ -12,5 +13,7 @@ public class InitApiLookup {
             }
             return null;
         });
+
+        ItemStorage.SIDED.registerFallback();
     }
 }

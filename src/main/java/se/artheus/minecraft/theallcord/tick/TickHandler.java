@@ -1,4 +1,4 @@
-package se.artheus.minecraft.theallcord.block.entity;
+package se.artheus.minecraft.theallcord.cable;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.Mod;
+import se.artheus.minecraft.theallcord.block.entity.AbstractEntity;
 
 import java.util.ArrayList;
 import java.util.List;

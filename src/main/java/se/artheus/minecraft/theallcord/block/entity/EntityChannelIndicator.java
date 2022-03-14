@@ -4,8 +4,10 @@ import appeng.api.networking.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import se.artheus.minecraft.theallcord.tick.TickHandler;
 
 import java.util.EnumSet;
 
@@ -66,6 +68,14 @@ public class ChannelIndicatorBlockEntity extends AbstractEntity implements IInWo
     public void clearRemoved() {
         super.clearRemoved();
         TickHandler.instance().addInit(this);
+    }
+
+    @Override
+    public void serverTick(Level level, BlockPos pos, BlockState state) {
+    }
+
+    @Override
+    public void clientTick(Level level, BlockPos pos, BlockState state) {
     }
 
     private static class ChannelIndicatorGridListener implements IGridNodeListener<ChannelIndicatorBlockEntity> {
