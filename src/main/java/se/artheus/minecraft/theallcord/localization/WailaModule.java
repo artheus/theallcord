@@ -19,8 +19,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
-import se.artheus.minecraft.theallcord.block.entity.AbstractEntity;
+import se.artheus.minecraft.theallcord.entities.cables.AbstractCableEntity;
+import se.artheus.minecraft.theallcord.entities.AbstractEntity;
 
 import java.util.ArrayList;
 import java.util.List;

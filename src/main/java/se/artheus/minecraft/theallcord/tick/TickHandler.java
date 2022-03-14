@@ -15,7 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import org.apache.commons.collections4.list.SetUniqueList;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.Mod;
-import se.artheus.minecraft.theallcord.block.entity.AbstractEntity;
+import se.artheus.minecraft.theallcord.entities.AbstractEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;

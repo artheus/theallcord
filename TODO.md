@@ -5,7 +5,7 @@
 * [ ] Storage
   - [ ] Fluids
   - [ ] Items
-  - [ ] Gas
+  - [ ] Gas (Probably only for Forge, when using the Mekanism mod, right?)
 * [x] Applied energistics 2
 * [x] Electrical Energy (RF, FE, etc..)
 * [ ] Redstone
