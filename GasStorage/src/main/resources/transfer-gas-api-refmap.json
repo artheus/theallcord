@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "net/fabricmc/fabric/mixin/transfer/BucketItemAccessor": {
+      "fluid": "field_7905:Lnet/minecraft/class_3611;"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "net/fabricmc/fabric/mixin/transfer/BucketItemAccessor": {
+        "fluid": "field_7905:Lnet/minecraft/class_3611;"
+      }
+    }
+  }
+}

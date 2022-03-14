@@ -1,0 +1,42 @@
+buildscript {
+    dependencies {
+        classpath 'org.kohsuke:github-api:1.135'
+    }
+}
+
+plugins {
+    id "java-library"
+    id "idea"
+}
+
+group = "se.artheus.fabric"
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+}
+
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
+loom {
+    shareRemapCaches = true
+
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "Testmod Client"
+            source sourceSets.testmod
+        }
+        testmodServer {
+            server()
+            ideConfigGenerated project.rootProject == project
+            name = "Testmod Server"
+            source sourceSets.testmod
+        }
+    }
+}

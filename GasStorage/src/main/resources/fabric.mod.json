@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "artheus_gas_storage",
+  "version": "2.0.0-beta1",
+  "name": "Gas",
+  "description": "The Gas API created and used by Artheus",
+  "authors": [
+    "Artheus",
+    "Team Reborn",
+    "modmuss50"
+  ],
+  "contact": {
+    "homepage": "https://github.com/artheus/Gas",
+    "sources": "https://github.com/artheus/Gas",
+    "issues": "https://github.com/artheus/Gas/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "icon": "assets/artheus_gas/icon.png",
+  "mixins": [
+    "GasStorage.mixins.json"
+  ],
+  "depends": {
+    "java": "\u003e\u003d16",
+    "minecraft": "\u003e\u003d1.17",
+    "fabric": "\u003e\u003d0.40"
+  }
+}
