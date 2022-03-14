@@ -9,13 +9,6 @@ classes/
 
 *.launch
 
-# idea
-
-.idea/
-*.iml
-*.ipr
-*.iws
-
 # vscode
 
 .settings/
