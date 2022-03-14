@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -22,13 +23,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
 import se.artheus.minecraft.theallcord.cable.CableConnections;
-import team.reborn.energy.api.EnergyStorage;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends AbstractBlock<E> {
     private static final Direction[] DIRECTIONS = Direction.values();
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
@@ -37,6 +38,7 @@ public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends 
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty UP = BlockStateProperties.UP;
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
+
     public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Util.make(Maps.newEnumMap(Direction.class), enumMap -> {
         enumMap.put(Direction.NORTH, NORTH);
         enumMap.put(Direction.EAST, EAST);
@@ -45,6 +47,7 @@ public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends 
         enumMap.put(Direction.UP, UP);
         enumMap.put(Direction.DOWN, DOWN);
     }));
+
     protected final VoxelShape[] shapeByIndex;
 
     public static final HashMap<Direction, BooleanProperty> DIRECTION_PROPERTY_MAP = new HashMap<>() {{
@@ -90,7 +93,7 @@ public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         if (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof AbstractCableEntity ace) {
-            ace.shouldUpdate();
+            ace.flagForUpdate();
         }
 
         return super.getStateForPlacement(context);
@@ -98,16 +101,7 @@ public abstract class AbstractBlockCable<E extends AbstractCableEntity> extends 
 
     @Override
     public BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos neighborPos) {
-        AbstractCableEntity aceEntity = null;
-
-        if (level.getBlockEntity(currentPos) instanceof AbstractCableEntity ace) {
-            ace.flagForUpdate();
-            aceEntity = ace;
-        }
-
-        if (aceEntity == null) return state;
-
-        return state.setValue(DIRECTION_PROPERTY_MAP.get(direction), CableConnections.isConnectable(aceEntity.getLevel(), neighborPos, direction.getOpposite(), level.getBlockEntity(neighborPos)));
+        return state.setValue(DIRECTION_PROPERTY_MAP.get(direction), CableConnections.isConnectable((Level) level, neighborPos, direction.getOpposite(), level.getBlockEntity(neighborPos)));
     }
 
     private VoxelShape[] makeShapes(float apothem) {

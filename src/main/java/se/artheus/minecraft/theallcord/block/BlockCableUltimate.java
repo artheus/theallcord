@@ -1,10 +1,8 @@
 package se.artheus.minecraft.theallcord.block;
 
 import appeng.api.util.AEColor;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
-import se.artheus.minecraft.theallcord.block.entity.TickerCableEntity;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -15,16 +13,6 @@ public class BlockCableUltimate<T extends AbstractCableEntity> extends AbstractB
 
     public BlockCableUltimate(boolean dense) {
         super(0.25F, dense);
-    }
-
-    @Override
-    public BlockEntityTicker<T> getServerTicker() {
-        return TickerCableEntity::serverTick;
-    }
-
-    @Override
-    public BlockEntityTicker<T> getClientTicker() {
-        return TickerCableEntity::clientTick;
     }
 
     @Override

@@ -1,20 +1,24 @@
-package se.artheus.minecraft.theallcord.cable;
+package se.artheus.minecraft.theallcord.tick;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import org.apache.commons.collections4.list.SetUniqueList;
 import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.Mod;
 import se.artheus.minecraft.theallcord.block.entity.AbstractEntity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +28,8 @@ public class TickHandler {
 
     private final EntityRepo blockEntities = new EntityRepo();
 
+    private final Collection<ITickingBlockEntity> tickingBlockEntities = SetUniqueList.setUniqueList(new ArrayList<>());
+
     private TickHandler() {
     }
 
@@ -32,6 +38,8 @@ public class TickHandler {
     }
 
     public void init() {
+        ClientTickEvents.START_WORLD_TICK.register(this::clientTickBlockEntities);
+        ServerTickEvents.START_WORLD_TICK.register(this::serverTickBlockEntities);
         ServerTickEvents.END_WORLD_TICK.register(this::onServerLevelTickEnd);
         ServerWorldEvents.LOAD.register((server, level) -> onLoadLevel(level));
     }
@@ -69,10 +77,28 @@ public class TickHandler {
         }
     }
 
+    private void serverTickBlockEntities(ServerLevel level) {
+        for (var entity :
+                this.tickingBlockEntities) {
+            entity.serverTick(level);
+        }
+    }
+
+    private void clientTickBlockEntities(ClientLevel level) {
+        for (var entity :
+                this.tickingBlockEntities) {
+            entity.clientTick(level);
+        }
+    }
+
     public void addInit(@NotNull AbstractEntity blockEntity) {
         if (blockEntity.getLevel() == null || blockEntity.getLevel().isClientSide()) return;
 
         this.blockEntities.addBlockEntity(blockEntity);
+    }
+
+    public void addTickingEntity(@NotNull ITickingBlockEntity entity) {
+        this.tickingBlockEntities.add(entity);
     }
 
     public void onLoadLevel(ServerLevel level) {

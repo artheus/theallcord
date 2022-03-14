@@ -1,9 +1,16 @@
-package se.artheus.minecraft.theallcord;
+package se.artheus.minecraft.theallcord.localization;
 
 import appeng.api.util.AEColor;
 import appeng.block.networking.CableBusBlock;
 import joptsimple.internal.Strings;
-import mcp.mobius.waila.api.*;
+import mcp.mobius.waila.api.IBlockAccessor;
+import mcp.mobius.waila.api.IBlockComponentProvider;
+import mcp.mobius.waila.api.IPluginConfig;
+import mcp.mobius.waila.api.IRegistrar;
+import mcp.mobius.waila.api.IServerDataProvider;
+import mcp.mobius.waila.api.ITooltip;
+import mcp.mobius.waila.api.IWailaPlugin;
+import mcp.mobius.waila.api.TooltipPosition;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -14,12 +21,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import se.artheus.minecraft.theallcord.block.entity.AbstractCableEntity;
 import se.artheus.minecraft.theallcord.block.entity.AbstractEntity;
-import se.artheus.minecraft.theallcord.localization.InGameTooltip;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static se.artheus.minecraft.theallcord.localization.InGameTooltip.*;
+import static se.artheus.minecraft.theallcord.localization.InGameTooltip.ColoredChannels;
+import static se.artheus.minecraft.theallcord.localization.InGameTooltip.ColoredChannelsOf;
+import static se.artheus.minecraft.theallcord.localization.InGameTooltip.DeviceOffline;
+import static se.artheus.minecraft.theallcord.localization.InGameTooltip.DeviceOnline;
 
 public class WailaModule implements IWailaPlugin {
 

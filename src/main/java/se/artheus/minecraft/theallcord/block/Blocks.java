@@ -10,25 +10,33 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.include.com.google.common.collect.Sets;
 import se.artheus.minecraft.theallcord.block.entity.EntityCableAdvanced;
 import se.artheus.minecraft.theallcord.block.entity.EntityCableBasic;
-import se.artheus.minecraft.theallcord.block.entity.ChannelIndicatorBlockEntity;
+import se.artheus.minecraft.theallcord.block.entity.EntityChannelIndicator;
 
 import java.util.Set;
 
-import static se.artheus.minecraft.theallcord.resource.ResourceLocations.*;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ADVANCED;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ADVANCED_DENSE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_BASIC;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_BASIC_DENSE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ELITE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ELITE_DENSE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ULTIMATE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CABLE_ULTIMATE_DENSE;
+import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CHANNEL_INDICATOR;
 
 public class Blocks {
 
     private static final FabricItemSettings TAB_SETTING = new FabricItemSettings().group(CreativeModeTab.TAB_MISC);
 
-    public static final AbstractBlock<ChannelIndicatorBlockEntity> BLOCK_CHANNEL_INDICATOR = new BlockChannelIndicator();
-    public static final AbstractBlock<EntityCableBasic> BLOCK_CABLE_BASIC = new BlockCableBasic<>(false);
-    public static final AbstractBlock<EntityCableBasic> BLOCK_CABLE_BASIC_DENSE = new BlockCableBasic<>(true);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ADVANCED = new BlockCableAdvanced<>(false);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ADVANCED_DENSE = new BlockCableAdvanced<>(true);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ELITE = new BlockCableElite<>(false);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ELITE_DENSE = new BlockCableElite<>(true);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE = new BlockCableUltimate<>(false);
-    public static final AbstractBlock<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE_DENSE = new BlockCableUltimate<>(true);
+    public static final AbstractBlock<EntityChannelIndicator> BLOCK_CHANNEL_INDICATOR = new BlockChannelIndicator();
+    public static final AbstractBlockCable<EntityCableBasic> BLOCK_CABLE_BASIC = new BlockCableBasic<>(false);
+    public static final AbstractBlockCable<EntityCableBasic> BLOCK_CABLE_BASIC_DENSE = new BlockCableBasic<>(true);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ADVANCED = new BlockCableAdvanced<>(false);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ADVANCED_DENSE = new BlockCableAdvanced<>(true);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ELITE = new BlockCableElite<>(false);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ELITE_DENSE = new BlockCableElite<>(true);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE = new BlockCableUltimate<>(false);
+    public static final AbstractBlockCable<EntityCableAdvanced> BLOCK_CABLE_ULTIMATE_DENSE = new BlockCableUltimate<>(true);
 
     public static final BlockItem BLOCK_ITEM_CHANNEL_INDICATOR = new BlockItem(BLOCK_CHANNEL_INDICATOR, TAB_SETTING);
     public static final BlockItem BLOCK_ITEM_CABLE_BASIC = new BlockItemCable(BLOCK_CABLE_BASIC, TAB_SETTING);

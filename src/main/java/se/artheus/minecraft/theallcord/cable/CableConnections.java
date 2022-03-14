@@ -8,10 +8,14 @@ import appeng.api.networking.IInWorldGridNodeHost;
 import appeng.api.util.AEColor;
 import appeng.blockentity.networking.ControllerBlockEntity;
 import appeng.me.GridConnection;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -22,19 +26,12 @@ import team.reborn.energy.api.EnergyStorage;
 import java.util.Objects;
 
 import static se.artheus.minecraft.theallcord.block.AbstractBlockCable.DIRECTION_PROPERTY_MAP;
+import static se.artheus.minecraft.theallcord.block.AbstractBlockCable.PROPERTY_BY_DIRECTION;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CableConnections {
 
-    public static boolean isConnectable(Level level, BlockPos pos, Direction dir, BlockEntity neighbor) {
-        if (neighbor instanceof AbstractCableEntity ||
-                neighbor instanceof IInWorldGridNodeHost) return true;
-
-        if (level == null || pos == null || dir == null) return false;
-
-        return (EnergyStorage.SIDED.find(level, pos, dir) != null);
-    }
-
-    public static BlockState connectToNearbyGrid(LevelAccessor level, BlockPos pos) {
+    public static BlockState connectToNearbyEntities(Level level, BlockPos pos) {
         Objects.requireNonNull(level);
         Objects.requireNonNull(pos);
 
@@ -45,13 +42,13 @@ public class CableConnections {
         );
     }
 
-    public static BlockState attemptConnectionTo(LevelAccessor level, BlockPos pos, Direction... directions) {
+    public static BlockState attemptConnectionTo(Level level, BlockPos pos, Direction... directions) {
         Objects.requireNonNull(level);
         Objects.requireNonNull(pos);
         Objects.requireNonNull(directions);
         assert directions.length > 0;
 
-        var state = level.getBlockState(pos);
+        var state = level.getBlockState(pos).getBlock().defaultBlockState();
 
         if (level.getBlockEntity(pos) instanceof AbstractCableEntity ace) {
             if (!ace.isInitialized()) {
@@ -63,36 +60,70 @@ public class CableConnections {
             for (final Direction dir : directions) {
                 var relativeEntity = level.getBlockEntity(pos.relative(dir));
 
-                state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), connectGridNodes(dir, ace, relativeEntity));
+                if (!isConnectable(level, pos.relative(dir), dir.getOpposite(), ace)) {
+                    state = state.setValue(PROPERTY_BY_DIRECTION.get(dir), false);
+                    continue;
+                }
+
+                if (relativeEntity instanceof AbstractCableEntity neighborAce) {
+                    if (!ace.getNetwork().has(neighborAce)) {
+                        ace.mergeNetworksWith(neighborAce);
+                    }
+
+                    state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), true);
+                } else {
+                    var energyStorage = getEnergyStorage(level, pos.relative(dir), dir.getOpposite());
+                    if (energyStorage != null) {
+                        ace.addEnergyStorage(energyStorage);
+                        state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), true);
+                    }
+
+                    var fluidStorage = getFluidStorage(level, pos.relative(dir), dir.getOpposite());
+                    if (fluidStorage != null) {
+                        ace.addFluidStorage(fluidStorage);
+                        state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), true);
+                    }
+
+                    var itemStorage = getItemStorage(level, pos.relative(dir), dir.getOpposite());
+                    if (itemStorage != null) {
+                        ace.addItemStorage(itemStorage);
+                        state = state.setValue(DIRECTION_PROPERTY_MAP.get(dir), true);
+                    }
+                }
+
+                if (relativeEntity instanceof IInWorldGridNodeHost neighborNodeHost) {
+                    state = state.setValue(
+                            DIRECTION_PROPERTY_MAP.get(dir),
+                            connectGridNodes(dir, ace, neighborNodeHost)
+                    );
+                }
             }
         }
 
         return state;
     }
 
-    private static boolean connectGridNodes(Direction dir, AbstractCableEntity myEntity, BlockEntity neighborEntity) {
-        if (dir == null || myEntity == null || neighborEntity == null) return false;
-        if (!isConnectable(myEntity.getLevel(), neighborEntity.getBlockPos(), dir.getOpposite(), neighborEntity)) return false;
+    private static boolean connectGridNodes(Direction dir, AbstractCableEntity myEntity, IInWorldGridNodeHost neighborNodeHost) {
+        if (dir == null || myEntity == null || neighborNodeHost == null) return false;
+
+        var connectionsMade = false;
 
         for (var managedNode : myEntity.getManagedNodes().values()) {
             var gridNode = managedNode.getNode();
 
-            if (gridNode == null) {
+            if (gridNode == null || !hasAvailableAENode(dir.getOpposite(), myEntity)) {
                 myEntity.flagForUpdate();
                 continue;
             }
 
             var color = gridNode.getGridColor();
-            var otherGridNode = getGridNodeFrom(neighborEntity, color, dir.getOpposite());
+            var otherGridNode = getGridNodeFrom(neighborNodeHost, color, dir.getOpposite());
 
-            if (otherGridNode == null) {
-                myEntity.flagForUpdate();
-                continue;
-            }
+            if (otherGridNode == null) continue;
 
             try {
                 GridConnection.create(gridNode, otherGridNode, dir);
-
+                connectionsMade = true;
                 Mod.LOGGER.debug("created {} grid connection between {} and {}", color, gridNode, otherGridNode);
             } catch (FailedConnectionException e) {
                 if (e instanceof ExistingConnectionException) {
@@ -105,23 +136,23 @@ public class CableConnections {
             }
         }
 
-        return true;
+        return connectionsMade;
     }
 
     @Nullable
-    private static IGridNode getGridNodeFrom(Object nodeHost, AEColor color, Direction dir) {
-        if (nodeHost instanceof AbstractCableEntity otherAce && otherAce.getManagedNodeByColor(color) != null) {
-            return otherAce.getManagedNodeByColor(color).getNode();
-        } else if (nodeHost instanceof IInWorldGridNodeHost inWorldGridNodeHost) {
-            var otherGridNode = inWorldGridNodeHost.getGridNode(dir);
+    private static IGridNode getGridNodeFrom(IInWorldGridNodeHost nodeHost, AEColor color, Direction dir) {
+        if (nodeHost instanceof AbstractCableEntity neighborAce) {
+            if (neighborAce.getManagedNodeByColor(color) != null)
+                return neighborAce.getManagedNodeByColor(color).getNode();
+        } else {
+            var otherGridNode = nodeHost.getGridNode(dir);
 
-            if (inWorldGridNodeHost instanceof IColorableBlockEntity colorableBlockEntity) {
-                if (!color.equals(colorableBlockEntity.getColor()))
-                    return null;
-            }
+            if (nodeHost instanceof IColorableBlockEntity colorableBlockEntity &&
+                    !color.equals(colorableBlockEntity.getColor())) return null;
 
+            // TODO: This should be configurable by gui
             // Allow only AEColor.TRANSPARENT for direct connection to ME Controller
-            if (inWorldGridNodeHost instanceof ControllerBlockEntity && !color.equals(AEColor.TRANSPARENT)) return null;
+            if (nodeHost instanceof ControllerBlockEntity && !color.equals(AEColor.TRANSPARENT)) return null;
 
             // Connect only if the grid nodes have the same color, or otherGridNode is AEColor.TRANSPARENT
             if (otherGridNode == null || (!otherGridNode.getGridColor().equals(color) && !otherGridNode.getGridColor().equals(AEColor.TRANSPARENT)))
@@ -131,5 +162,39 @@ public class CableConnections {
         }
 
         return null;
+    }
+
+    public static boolean isConnectable(Level level, BlockPos neighborPos, Direction dir, BlockEntity neighbor) {
+        if (level == null || neighborPos == null || dir == null || neighbor == null) return false;
+
+        return isAllcordCable(neighbor) ||
+                neighbor instanceof IInWorldGridNodeHost ||
+                getEnergyStorage(level, neighborPos, dir) != null ||
+                getFluidStorage(level, neighborPos, dir) != null ||
+                getItemStorage(level, neighborPos, dir) != null;
+    }
+
+    @Nullable
+    public static EnergyStorage getEnergyStorage(Level level, BlockPos pos, Direction dir) {
+        return EnergyStorage.SIDED.find(level, pos, dir);
+    }
+
+    @Nullable
+    public static Storage<FluidVariant> getFluidStorage(Level level, BlockPos pos, Direction dir) {
+        return FluidStorage.SIDED.find(level, pos, dir);
+    }
+
+    @Nullable
+    public static Storage<ItemVariant> getItemStorage(Level level, BlockPos pos, Direction dir) {
+        return ItemStorage.SIDED.find(level, pos, dir);
+    }
+
+    public static boolean hasAvailableAENode(Direction dir, BlockEntity neighbor) {
+        return neighbor instanceof IInWorldGridNodeHost &&
+                ((IInWorldGridNodeHost) neighbor).getGridNode(dir) != null;
+    }
+
+    public static boolean isAllcordCable(BlockEntity entity) {
+        return entity instanceof AbstractCableEntity;
     }
 }

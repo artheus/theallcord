@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11.32'
 	id 'maven-publish'
 	id "com.diffplug.spotless" version "5.12.4"
 	id "com.matthewprenger.cursegradle" version "1.4.0"
@@ -48,19 +48,80 @@ repositories {
 	}
 }
 
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+def ENV = System.getenv()
 
-	mappings loom.layered {
-		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-1.17.1:2021.12.12@zip")
+allprojects {
+	version = project.mod_version + (ENV.GITHUB_ACTIONS ? "" : "+local")
+
+	apply plugin: "fabric-loom"
+	apply plugin: "maven-publish"
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+
+	// Shared deps between TR and RC
+	dependencies {
+		minecraft "com.mojang:minecraft:${project.minecraft_version}"
+		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+		mappings loom.layered {
+			officialMojangMappings()
+			parchment("org.parchmentmc.data:parchment-1.18.1:${project.parchment_version}@zip")
+		}
+
+		// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+		implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
+
+		//Fabric api
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+		include(modApi("teamreborn:energy:${project.tr_energy_version}")) {
+			transitive = false
+		}
 	}
 
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	processResources {
+		inputs.property "version", project.version
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+		filesMatching("fabric.mod.json") {
+			expand "version": project.version
+		}
+	}
+
+	tasks.withType(JavaCompile).configureEach {
+		it.options.encoding = "UTF-8"
+		it.options.release = 17
+	}
+
+	loom {
+		runtimeOnlyLog4j = true
+	}
+
+	java {
+		withSourcesJar()
+	}
+
+	// configure the maven publication
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+			}
+		}
+
+		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+		repositories {
+			// Add repositories to publish to here.
+			// Notice: This block does NOT have the same function as the block in the top level.
+			// The repositories here will be used for publishing your artifact, not for
+			// retrieving dependencies.
+		}
+	}
+}
+
+dependencies {
+	api project(path: ":GasStorage", configuration: "namedElements")
+	include project(":GasStorage")
 
 	modImplementation("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}") {
 		exclude group: "net.fabricmc.fabric-api"
@@ -77,54 +138,34 @@ dependencies {
 		exclude group: "net.fabricmc.fabric-api"
 	}
 
-	include modImplementation("TechReborn:TechReborn-1.18:${project.tech_reborn_version}") {
-		exclude group: "net.fabricmc.fabric-api"
-	}
+	optionalDependency "TechReborn:TechReborn-1.18:${project.tech_reborn_version}"
 
 	modImplementation("appeng:appliedenergistics2-fabric:${project.ae_version}") {
 		exclude group: "net.fabricmc.fabric-api"
 	}
 }
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+def optionalDependency(String dep) {
+	dependencies.modLocalRuntime (dep) {
+		exclude group: "net.fabricmc.fabric-api"
+		exclude module: "nbt-crafting"
+	}
+	dependencies.modCompileOnly (dep) {
+		exclude group: "net.fabricmc.fabric-api"
+		exclude module: "nbt-crafting"
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
-}
-
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+def disabledOptionalDependency(String dep) {
+	dependencies.modCompileOnly (dep) {
+		exclude group: "net.fabricmc.fabric-api"
+		exclude module: "nbt-crafting"
+	}
 }
 
 jar {
+	exclude "**/*.xcf"
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
-	}
-}
-
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
 	}
 }
