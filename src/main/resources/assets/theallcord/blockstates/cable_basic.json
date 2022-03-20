@@ -1,62 +1,62 @@
 {
-  "multipart": [
-    {
-      "apply": {
-        "model": "theallcord:block/cable_basic"
-      }
-    },
-    {
-      "when": {
-        "north": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side"
-      }
-    },
-    {
-      "when": {
-        "east": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "south": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "west": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "down": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side",
-        "x": 90
-      }
-    },
-    {
-      "when": {
-        "up": "true"
-      },
-      "apply": {
-        "model": "theallcord:block/cable_basic_side",
-        "x": 270
-      }
-    }
-  ]
+    "multipart": [
+        {
+            "apply": {
+                "model": "theallcord:block/cable_basic"
+            }
+        },
+        {
+            "when": {
+                "north": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side"
+            }
+        },
+        {
+            "when": {
+                "east": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side",
+                "y": 90
+            }
+        },
+        {
+            "when": {
+                "south": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side",
+                "y": 180
+            }
+        },
+        {
+            "when": {
+                "west": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side",
+                "y": 270
+            }
+        },
+        {
+            "when": {
+                "down": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side",
+                "x": 90
+            }
+        },
+        {
+            "when": {
+                "up": "true"
+            },
+            "apply": {
+                "model": "theallcord:block/cable_basic_side",
+                "x": 270
+            }
+        }
+    ]
 }

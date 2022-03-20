@@ -1,35 +1,43 @@
 package se.artheus.minecraft.theallcord.entities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import se.artheus.minecraft.theallcord.networking.Network;
-import se.artheus.minecraft.theallcord.tick.ITickingBlockEntity;
-import se.artheus.minecraft.theallcord.tick.TickHandler;
 
+import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.EnumSet;
+import java.util.Set;
 
-public abstract class AbstractNetworkEntity extends AbstractEntity implements ITickingBlockEntity {
+public abstract class AbstractNetworkEntity extends AbstractEntity {
 
+    protected final Set<Direction> connectedSides = EnumSet.noneOf(Direction.class);
     private Network network;
 
     public AbstractNetworkEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
-
-        this.network = new Network(this);
     }
 
+    public abstract boolean isOnline();
+
+    @Nullable
     public Network getNetwork() {
         return this.network;
     }
 
-    public void setNetwork(Network network) {
+    public void setNetwork(@NotNull Network network) {
         this.network = network;
     }
 
-    public void mergeNetworksWith(AbstractNetworkEntity entity) {
-        this.network = Network.createMergedNetwork(this.network, entity.getNetwork());
-        entity.setNetwork(this.network);
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void setRemoved() {
+        super.setRemoved();
+
+        //Network.removeNodeFor(this);
     }
 
     @Override
@@ -37,6 +45,11 @@ public abstract class AbstractNetworkEntity extends AbstractEntity implements IT
     public void clearRemoved() {
         super.clearRemoved();
 
-        TickHandler.instance().addTickingEntity(this);
+        //Network.requestNetworkFor(this);
+    }
+
+    @Override
+    public String toString() {
+        return "NetworkEntity{class: %s, pos: %s}".formatted(this.getClass().getSimpleName(), this.getBlockPos().toString());
     }
 }

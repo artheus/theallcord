@@ -1,11 +1,11 @@
 {
-  "block.theallcord.channel_indicator": "AE Channel indicator",
-  "block.theallcord.cable_basic": "Basic cable",
-  "block.theallcord.cable_basic_dense": "Dense basic cable",
-  "block.theallcord.cable_advanced": "Advanced cable",
-  "block.theallcord.cable_advanced_dense": "Dense advanced cable",
-  "waila.theallcord.ColoredChannelsOf": "- %1$s: %2$d of %3$d channels",
-  "waila.theallcord.ColoredChannels": "Colored channels:",
-  "waila.theallcord.DeviceOnline": "Device online",
-  "waila.theallcord.DeviceOffline": "Device offline"
+    "block.theallcord.channel_indicator": "AE Channel indicator",
+    "block.theallcord.cable_basic": "Basic cable",
+    "block.theallcord.cable_basic_dense": "Dense basic cable",
+    "block.theallcord.cable_advanced": "Advanced cable",
+    "block.theallcord.cable_advanced_dense": "Dense advanced cable",
+    "waila.theallcord.ColoredChannelsOf": "- %1$s: %2$d of %3$d channels",
+    "waila.theallcord.ColoredChannels": "Colored channels:",
+    "waila.theallcord.DeviceOnline": "Device online",
+    "waila.theallcord.DeviceOffline": "Device offline"
 }

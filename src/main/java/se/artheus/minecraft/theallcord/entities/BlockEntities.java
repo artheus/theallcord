@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import se.artheus.minecraft.theallcord.blocks.AbstractBlock;
+import se.artheus.minecraft.theallcord.blocks.Blocks;
 import se.artheus.minecraft.theallcord.entities.cables.CableAdvancedEntity;
 import se.artheus.minecraft.theallcord.entities.cables.CableBasicEntity;
 import se.artheus.minecraft.theallcord.entities.cables.CableEliteEntity;
@@ -35,6 +36,11 @@ public class BlockEntities {
     public static BlockEntityType<CableEliteEntity> ENTITY_TYPE_CABLE_ELITE;
     public static BlockEntityType<CableUltimateEntity> ENTITY_TYPE_CABLE_ULTIMATE;
 
+    /**
+     * Registering block entities, coupled with {@link Blocks}
+     * <p>
+     * This should preferably be executed {@link  Blocks#registerBlocks()}
+     */
     public static void registerBlockEntities() {
         ENTITY_TYPE_CHANNEL_INDICATOR = register(ID_ENTITY_CHANNEL_INDICATOR, AEChannelIndicatorEntity::new, BLOCK_CHANNEL_INDICATOR);
 
@@ -46,9 +52,9 @@ public class BlockEntities {
 
     private static <T extends AbstractEntity> BlockEntityType<T> register(ResourceLocation id, FabricBlockEntityTypeBuilder.Factory<T> factory, Block... blocks) {
         var type = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE,
-                id,
-                FabricBlockEntityTypeBuilder.create(factory, blocks).build()
+            Registry.BLOCK_ENTITY_TYPE,
+            id,
+            FabricBlockEntityTypeBuilder.create(factory, blocks).build()
         );
 
         for (var block : blocks) {

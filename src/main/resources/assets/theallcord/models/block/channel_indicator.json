@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "theallcord:block/channel_indicator"
-  }
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+        "all": "theallcord:block/channel_indicator"
+    }
 }

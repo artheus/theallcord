@@ -7,21 +7,22 @@ import appeng.api.networking.IInWorldGridNodeHost;
 import appeng.api.networking.IManagedGridNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import se.artheus.minecraft.theallcord.entities.AbstractEntity;
 import se.artheus.minecraft.theallcord.entities.AbstractGridNodeListener;
+import se.artheus.minecraft.theallcord.entities.AbstractNetworkEntity;
 import se.artheus.minecraft.theallcord.tick.TickHandler;
 
 import java.util.EnumSet;
 
-import static se.artheus.minecraft.theallcord.blocks.indicators.AEChannelIndicator.ONLINE;
+import static se.artheus.minecraft.theallcord.blocks.BlockAEChannelIndicator.ONLINE;
 import static se.artheus.minecraft.theallcord.blocks.Blocks.BLOCK_ITEM_CHANNEL_INDICATOR;
 import static se.artheus.minecraft.theallcord.entities.BlockEntities.ENTITY_TYPE_CHANNEL_INDICATOR;
 import static se.artheus.minecraft.theallcord.resource.ResourceLocations.ID_BLOCK_CHANNEL_INDICATOR;
 
-public class AEChannelIndicatorEntity extends AbstractEntity implements IInWorldGridNodeHost {
+public class AEChannelIndicatorEntity extends AbstractNetworkEntity implements IInWorldGridNodeHost {
 
     private final IManagedGridNode mainNode;
     private boolean initialized = false;
@@ -46,11 +47,10 @@ public class AEChannelIndicatorEntity extends AbstractEntity implements IInWorld
         return this.getBlockState().getValue(ONLINE);
     }
 
-    public void initialize() {
-        if (level == null) return;
+    public void initialize(ServerLevel level) {
         if (initialized) return;
 
-        if (mainNode.getNode() == null) {
+        if (mainNode.getNode()==null) {
             mainNode.create(level, worldPosition);
         }
 
@@ -78,12 +78,12 @@ public class AEChannelIndicatorEntity extends AbstractEntity implements IInWorld
     private static class ChannelIndicatorGridListener extends AbstractGridNodeListener<AEChannelIndicatorEntity> {
         @Override
         public void onStateChanged(AEChannelIndicatorEntity nodeOwner, IGridNode node, State state) {
-            if (nodeOwner.level == null || nodeOwner.worldPosition == null) return;
+            if (nodeOwner.level==null || nodeOwner.worldPosition==null) return;
 
-            if (nodeOwner.getBlockState().getValue(ONLINE) != node.isActive()) {
+            if (nodeOwner.getBlockState().getValue(ONLINE)!=node.isActive()) {
                 nodeOwner.level.setBlockAndUpdate(
-                        nodeOwner.worldPosition,
-                        nodeOwner.getBlockState().setValue(ONLINE, node.isActive())
+                    nodeOwner.worldPosition,
+                    nodeOwner.getBlockState().setValue(ONLINE, node.isActive())
                 );
             }
         }

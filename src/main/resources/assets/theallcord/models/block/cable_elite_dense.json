@@ -1,7 +1,7 @@
 {
-  "parent": "theallcord:block/cable_elite",
-  "textures": {
-    "0": "theallcord:block/cable_elite_dense",
-    "particle": "theallcord:block/cable_elite_dense"
-  }
+    "parent": "theallcord:block/cable_elite",
+    "textures": {
+        "0": "theallcord:block/cable_elite_dense",
+        "particle": "theallcord:block/cable_elite_dense"
+    }
 }

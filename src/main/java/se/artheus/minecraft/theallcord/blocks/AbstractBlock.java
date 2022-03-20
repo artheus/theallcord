@@ -18,12 +18,12 @@ public abstract class AbstractBlock<E extends AbstractEntity> extends Block impl
         super(properties);
     }
 
-    public void setBlockEntityType(BlockEntityType<E> type) {
-        this.blockEntityType = type;
-    }
-
     public BlockEntityType<E> getBlockEntityType() {
         return this.blockEntityType;
+    }
+
+    public void setBlockEntityType(BlockEntityType<E> type) {
+        this.blockEntityType = type;
     }
 
     @Nullable

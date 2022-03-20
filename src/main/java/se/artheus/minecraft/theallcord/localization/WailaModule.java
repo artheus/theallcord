@@ -19,8 +19,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import se.artheus.minecraft.theallcord.entities.cables.AbstractCableEntity;
 import se.artheus.minecraft.theallcord.entities.AbstractEntity;
+import se.artheus.minecraft.theallcord.entities.AbstractNetworkEntity;
+import se.artheus.minecraft.theallcord.entities.cables.AbstractNetworkCableEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,13 @@ public class WailaModule implements IWailaPlugin {
 
         private static final String TAG_CABLE_COLORED_CHANNELS = "theallcord:cableColoredChannels";
         private static final String TAG_DEVICE_ONLINE = "theallcord:deviceOnline";
+        private static final String TAG_ENERGY_STORAGE = "theallcord:energyStorage";
 
-        private static final String SERVER_AE_NODE_DATA_COMPOUND_KEY = "theallcord:ae2_node_data";
+        private static final String SERVER_DATA_COMPOUND_KEY = "theallcord:server_compound_data";
 
         @Override
         public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-            var serverData = accessor.getServerData().getCompound(SERVER_AE_NODE_DATA_COMPOUND_KEY);
+            var serverData = accessor.getServerData().getCompound(SERVER_DATA_COMPOUND_KEY);
 
             if (serverData.contains(TAG_CABLE_COLORED_CHANNELS, Tag.TAG_STRING)) {
                 var tagName = serverData.getString(TAG_CABLE_COLORED_CHANNELS);
@@ -60,16 +62,17 @@ public class WailaModule implements IWailaPlugin {
 
                     for (var n : names) {
                         var chanData = n.split(":");
-                        if (chanData.length != 3) continue;
+                        if (chanData.length!=3) continue;
 
                         tooltip.add(ColoredChannelsOf.text(
-                                new TranslatableComponent(AEColor.valueOf(chanData[0]).translationKey),
-                                chanData[1],
-                                chanData[2]
+                            new TranslatableComponent(AEColor.valueOf(chanData[0]).translationKey),
+                            chanData[1],
+                            chanData[2]
                         ).withStyle(ChatFormatting.ITALIC));
                     }
                 }
             }
+
             if (serverData.contains(TAG_DEVICE_ONLINE, Tag.TAG_BYTE)) {
                 if (serverData.getBoolean(TAG_DEVICE_ONLINE)) {
                     tooltip.add(DeviceOnline.text().withStyle(ChatFormatting.GREEN));
@@ -83,12 +86,14 @@ public class WailaModule implements IWailaPlugin {
         public void appendServerData(CompoundTag serverData, ServerPlayer player, Level world, BlockEntity be) {
             var data = new CompoundTag();
 
-            if (be instanceof AbstractCableEntity ace) {
+            if (be instanceof AbstractNetworkCableEntity ace) {
+
+                if (ace.getGridNodeConnectionManager()==null) return;
 
                 final List<String> tagNames = new ArrayList<>();
 
-                ace.getManagedNodes().forEach((color, mainNode) -> {
-                    if (mainNode.getNode() == null) return;
+                ace.getGridNodeConnectionManager().getManagedNodes().forEach((color, mainNode) -> {
+                    if (mainNode.getNode()==null) return;
 
                     var maxChannels = mainNode.getNode().getMaxChannels();
                     var usedChannels = mainNode.getNode().getUsedChannels();
@@ -99,12 +104,12 @@ public class WailaModule implements IWailaPlugin {
                 data.putString(TAG_CABLE_COLORED_CHANNELS, Strings.join(tagNames, ","));
             }
 
-            if (be instanceof AbstractEntity entity) {
+            if (be instanceof AbstractNetworkEntity entity) {
                 data.putBoolean(TAG_DEVICE_ONLINE, entity.isOnline());
             }
 
             if (!data.isEmpty()) {
-                serverData.put(SERVER_AE_NODE_DATA_COMPOUND_KEY, data);
+                serverData.put(SERVER_DATA_COMPOUND_KEY, data);
             }
         }
     }

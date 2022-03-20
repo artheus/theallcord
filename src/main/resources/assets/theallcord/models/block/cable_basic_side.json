@@ -1,25 +1,84 @@
 {
-	"credit": "Made with Blockbench",
-	"ambientocclusion": false,
-	"texture_size": [10, 10],
-	"textures": {
-		"0": "theallcord:block/cable_basic",
-		"particle": "theallcord:block/cable_basic"
-	},
-	"elements": [
-		{
-			"name": "south",
-			"from": [6, 6, 0],
-			"to": [10, 10, 6],
-			"shade": false,
-			"faces": {
-				"north": {"uv": [0, 0, 6.4, 6.4], "texture": "#0"},
-				"east": {"uv": [6.4, 0, 16, 6.4], "texture": "#0"},
-				"south": {"uv": [0, 0, 6.4, 6.4], "texture": "#0"},
-				"west": {"uv": [6.4, 0, 16, 6.4], "texture": "#0"},
-				"up": {"uv": [0, 6.4, 6.4, 16], "texture": "#0"},
-				"down": {"uv": [0, 6.4, 6.4, 16], "texture": "#0"}
-			}
-		}
-	]
+    "credit": "Made with Blockbench",
+    "ambientocclusion": false,
+    "texture_size": [
+        10,
+        10
+    ],
+    "textures": {
+        "0": "theallcord:block/cable_basic",
+        "particle": "theallcord:block/cable_basic"
+    },
+    "elements": [
+        {
+            "name": "south",
+            "from": [
+                6,
+                6,
+                0
+            ],
+            "to": [
+                10,
+                10,
+                6
+            ],
+            "shade": false,
+            "faces": {
+                "north": {
+                    "uv": [
+                        0,
+                        0,
+                        6.4,
+                        6.4
+                    ],
+                    "texture": "#0"
+                },
+                "east": {
+                    "uv": [
+                        6.4,
+                        0,
+                        16,
+                        6.4
+                    ],
+                    "texture": "#0"
+                },
+                "south": {
+                    "uv": [
+                        0,
+                        0,
+                        6.4,
+                        6.4
+                    ],
+                    "texture": "#0"
+                },
+                "west": {
+                    "uv": [
+                        6.4,
+                        0,
+                        16,
+                        6.4
+                    ],
+                    "texture": "#0"
+                },
+                "up": {
+                    "uv": [
+                        0,
+                        6.4,
+                        6.4,
+                        16
+                    ],
+                    "texture": "#0"
+                },
+                "down": {
+                    "uv": [
+                        0,
+                        6.4,
+                        6.4,
+                        16
+                    ],
+                    "texture": "#0"
+                }
+            }
+        }
+    ]
 }
